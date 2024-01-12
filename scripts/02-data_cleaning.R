@@ -1,44 +1,36 @@
 #### Preamble ####
-# Purpose: Cleans the raw plane data recorded by two observers..... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 6 April 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Cleans the Toronto Bike Theft Data -> Deleting Columns not required and changing header names
+# Author: Shaffaan Bin Aamir
+# Date: 12 January 2024
+# Contact: shaffaanbin.aamir@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
+# Pre-requisites: None
 # Any other information needed? [...UPDATE THIS...]
 
 #### Workspace setup ####
 library(tidyverse)
-
+library(janitor)
 #### Clean data ####
-raw_data <- read_csv("inputs/data/plane_data.csv")
+raw_data <- read_csv("inputs/data/unedited_data.csv")
 
-cleaned_data <-
-  raw_data |>
-  janitor::clean_names() |>
-  select(wing_width_mm, wing_length_mm, flying_time_sec_first_timer) |>
-  filter(wing_width_mm != "caw") |>
-  mutate(
-    flying_time_sec_first_timer = if_else(flying_time_sec_first_timer == "1,35",
-                                   "1.35",
-                                   flying_time_sec_first_timer)
-  ) |>
-  mutate(wing_width_mm = if_else(wing_width_mm == "490",
-                                 "49",
-                                 wing_width_mm)) |>
-  mutate(wing_width_mm = if_else(wing_width_mm == "6",
-                                 "60",
-                                 wing_width_mm)) |>
-  mutate(
-    wing_width_mm = as.numeric(wing_width_mm),
-    wing_length_mm = as.numeric(wing_length_mm),
-    flying_time_sec_first_timer = as.numeric(flying_time_sec_first_timer)
-  ) |>
-  rename(flying_time = flying_time_sec_first_timer,
-         width = wing_width_mm,
-         length = wing_length_mm
-         ) |> 
-  tidyr::drop_na()
+cleaned_data <- clean_names(raw_data) |>
+  select(x_id, occ_year, occ_month, occ_day, location_type,premises_type,
+         bike_make,bike_speed,bike_cost,status, geometry) |>
+  rename(
+    "Theft_id" = x_id, 
+    "Offense_Year" = occ_year,
+    "Offense_Month" = occ_month,
+    "Offense_Day" = occ_day,
+    "Location_type" = location_type,
+    "Premises_type" = premises_type,
+    "Bike Make" = bike_make,
+    "Bike_Speed" = bike_speed,
+    "Cost of Bike" = bike_cost,
+    "Status of Bike" = status,
+    "Coordinates" = geometry
+  )
+
+
 
 #### Save data ####
 write_csv(cleaned_data, "outputs/data/analysis_data.csv")
